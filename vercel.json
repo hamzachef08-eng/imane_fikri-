@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/imane_love.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/imane_love.html"
+    }
+  ]
+}
