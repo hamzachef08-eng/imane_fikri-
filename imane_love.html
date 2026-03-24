@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imane Fikri - Mon Amour</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --crimson:   #c8102e;
+            --rose:      #f7688a;
+            --blush:     #f0b8c4;
+            --gold:      #d4a44c;
+            --gold-pale: #f0d79e;
+            --dark:      #0d0406;
+            --deep:      #180810;
+            --card-bg:   rgba(255,255,255,0.04);
+            --card-border: rgba(212, 164, 76, 0.25);
+            --card-border-hover: rgba(212, 164, 76, 0.7);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: var(--dark);
+            color: #f0e8e8;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* ─── NOISE GRAIN OVERLAY ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.02);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── ROMANTIC OVERLAY ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(248,104,138,0.05) 0%, rgba(212,164,76,0.03) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── TYPOGRAPHY SYSTEM ─── */
+        .font-display   { font-family: 'Great Vibes', cursive; }
+        .font-serif     { font-family: 'Playfair Display', serif; }
+        .font-body      { font-family: 'Cormorant Garamond', serif; }
+        .font-arabic    { font-family: 'Amiri', serif; }
+
+        .t-hero   { font-size: clamp(3rem,  8vw, 6rem);  line-height: 1; word-break: break-word; white-space: normal; }
+        .t-title  { font-size: clamp(1.8rem, 4vw,  3rem);  line-height: 1.15; word-break: break-word; white-space: normal; }
+        .t-sub    { font-size: clamp(1.1rem, 2vw,  1.6rem); line-height: 1.5; }
+        .t-body   { font-size: clamp(1rem,   1.6vw, 1.25rem); line-height: 1.85; }
+        .t-caption{ font-size: clamp(0.85rem, 1.2vw, 1rem); letter-spacing: 0.12em; }
+
+        /* ─── COLOUR UTILITIES ─── */
+        .text-gold   { color: var(--gold); }
+        .text-rose   { color: var(--rose); }
+        .text-blush  { color: var(--blush); }
+        .text-muted  { color: rgba(240,220,220,0.55); }
+
+        .gradient-gold {
+            background: linear-gradient(135deg, var(--gold-pale), var(--gold), #a07030);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-rose {
+            background: linear-gradient(135deg, #ffc0cb, var(--rose), var(--crimson));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ─── GLOW ─── */
+        .glow-rose {
+            text-shadow: 0 0 18px rgba(248,104,138,0.6),
+                         0 0 40px rgba(200,16,46,0.35),
+                         0 0 80px rgba(200,16,46,0.18);
+        }
+
+        /* ─── LANGUAGE TOGGLE ─── */
+        .lang-toggle {
+            position: fixed;
+            top: 24px;
+            right: 28px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+        .lang-btn {
+            padding: 6px 18px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--card-border);
+            border-radius: 40px;
+            cursor: pointer;
+            color: var(--blush);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .lang-btn:hover, .lang-btn.active {
+            background: rgba(212,164,76,0.2);
+            border-color: var(--gold);
+            color: var(--gold-pale);
+        }
+
+        /* ─── CANVAS ─── */
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ─── HERO ─── */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(200,16,46,0.12) 0%, transparent 70%);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            padding: 0 3rem;
+            max-width: 95vw;
+            overflow: visible;
+        }
+
+        /* Animated divider line */
+        .divider-line {
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 1.5rem auto;
+            animation: expand-line 1.8s 0.6s ease forwards;
+        }
+        @keyframes expand-line {
+            to { width: clamp(120px, 30vw, 320px); }
+        }
+
+        .subtitle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+        .subtitle-dot {
+            width: 5px; height: 5px;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        /* Nickname tag */
+        .nickname-tag {
+            display: inline-block;
+            padding: 0.55rem 2rem;
+            border: 1px solid var(--gold);
+            border-radius: 60px;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            color: var(--gold-pale);
+            letter-spacing: 0.08em;
+            background: rgba(212,164,76,0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        /* scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--gold);
+            opacity: 0.6;
+            animation: bob 2.5s ease-in-out infinite;
+        }
+        @keyframes bob {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50%        { transform: translateX(-50%) translateY(9px); }
+        }
+
+        /* ─── GLASS CARD ─── */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: clamp(2rem, 4vw, 3.5rem);
+            max-width: 820px;
+            width: 100%;
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.04) inset,
+                0 24px 64px rgba(0,0,0,0.5),
+                0 0 0 0 rgba(212,164,76,0);
+            transition: box-shadow 0.5s, border-color 0.5s;
+            position: relative;
+            overflow: visible;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 10%, rgba(212,164,76,0.5) 50%, transparent 90%);
+            z-index: -1;
+        }
+        .glass-card:hover {
+            border-color: var(--card-border-hover);
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.05) inset,
+                0 32px 80px rgba(0,0,0,0.6),
+                0 0 40px rgba(212,164,76,0.08);
+        }
+
+        /* ─── HORIZONTAL SCROLL ─── */
+        .horizontal-section {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .horizontal-container {
+            display: flex;
+            width: 500vw;
+            height: 100vh;
+            will-change: transform;
+        }
+        .horizontal-panel {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 clamp(2rem, 8vw, 6rem);
+            overflow: visible;
+        }
+
+        /* Panel accent: subtle radial glow behind each card */
+        .horizontal-panel::before {
+            content: '';
+            position: absolute;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(200,16,46,0.07) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline-item {
+            position: relative;
+            padding-left: 2.2rem;
+            border-left: 1px solid rgba(212,164,76,0.35);
+            margin-bottom: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px; top: 8px;
+            width: 9px; height: 9px;
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(212,164,76,0.6);
+        }
+        .timeline-item h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gold-pale);
+            margin-bottom: 0.4rem;
+        }
+
+        /* ─── INFO GRID CELLS ─── */
+        .info-cell {
+            padding: 1.4rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(212,164,76,0.15);
+            border-radius: 18px;
+            text-align: center;
+            transition: border-color 0.35s, background 0.35s;
+        }
+        .info-cell:hover {
+            border-color: rgba(212,164,76,0.4);
+            background: rgba(212,164,76,0.05);
+        }
+        .info-cell-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            letter-spacing: 0.04em;
+            color: var(--blush);
+            margin-top: 0.6rem;
+        }
+
+        /* ─── CHOCOLATE CARD ─── */
+        .chocolate-card {
+            background: linear-gradient(135deg, rgba(101,52,15,0.25), rgba(139,69,19,0.18));
+            border: 1px solid rgba(180,120,40,0.4);
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* ─── QUOTE BOX ─── */
+        .quote-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: clamp(2rem,4vw,3rem) clamp(2rem,5vw,4rem);
+            position: relative;
+            overflow: hidden;
+        }
+        .quote-mark {
+            font-family: 'Playfair Display', serif;
+            font-size: 7rem;
+            line-height: 0.7;
+            color: rgba(212,164,76,0.15);
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+            user-select: none;
+        }
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+            line-height: 1.75;
+            color: var(--blush);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ─── MARRIAGE PROMISE ─── */
+        .marriage-promise {
+            background: linear-gradient(135deg, rgba(212,164,76,0.12), rgba(200,16,46,0.1));
+            border: 1px solid rgba(212,164,76,0.45);
+            border-radius: 22px;
+            padding: 2.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .marriage-promise::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(212,164,76,0.04) 0%, transparent 60%);
+        }
+        .promise-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+            line-height: 2;
+            color: var(--blush);
+            text-align: center;
+        }
+
+        /* ─── MEMORY CARDS ─── */
+        .memory-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(212,164,76,0.18);
+            border-radius: 22px;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s, border-color 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+        .memory-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(212,164,76,0.06) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: -1;
+        }
+        .memory-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 28px 56px rgba(0,0,0,0.55), 0 0 40px rgba(212,164,76,0.1);
+            border-color: rgba(212,164,76,0.5);
+        }
+        .memory-card:hover::after { opacity: 1; }
+        .memory-card-emoji {
+            font-size: 3.5rem;
+            text-align: center;
+            display: block;
+            margin-bottom: 1.2rem;
+            filter: drop-shadow(0 0 12px rgba(212,164,76,0.3));
+        }
+        .memory-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--gold-pale);
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .love-game-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(212,164,76,0.35);
+            border-radius: 24px;
+            padding: clamp(1.8rem,2.5vw,2.5rem);
+            min-height: 320px;
+            position: relative;
+            overflow: hidden;
+        }
+        .love-game-area {
+            position: relative;
+            width: 100%;
+            min-height: 220px;
+            border: 1px dashed rgba(212,164,76,0.4);
+            border-radius: 16px;
+            background: rgba(248,104,138,0.05);
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .love-heart {
+            position: absolute;
+            cursor: pointer;
+            font-size: 1.4rem;
+            animation: float-heart 2.6s ease-in-out infinite;
+            text-shadow: 0 0 14px rgba(255,255,255,0.4);
+        }
+        @keyframes float-heart {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.08); }
+        }
+        .love-game-status { margin-top: 0.8rem; color: var(--gold); font-weight: 600; }
+        .btn-rose { display: inline-block; padding: 0.6rem 1.2rem; border: 1px solid rgba(212,164,76,0.6); background: rgba(255,255,255,0.1); border-radius: 28px; cursor: pointer; color: var(--gold-pale); transition: transform 0.2s ease; }
+        .btn-rose:hover { transform: scale(1.04); }
+
+        .memory-card p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            color: rgba(240,220,220,0.65);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .promise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .promise-card {
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(212,164,76,0.22);
+            border-radius: 20px;
+            padding: 1.4rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            overflow: visible;
+        }
+        .promise-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 30px rgba(0,0,0,0.35);
+            border-color: rgba(212,164,76,0.45);
+        }
+        .promise-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            color: var(--gold-pale);
+            margin-bottom: 0.65rem;
+            position: relative;
+            z-index: 2;
+        }
+        .promise-card p {
+            color: rgba(240,220,220,0.88);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* ─── VERTICAL SECTIONS ─── */
+        .vertical-section {
+            min-height: 100vh;
+            position: relative;
+            z-index: 10;
+            padding: clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem);
+        }
+
+        /* ─── HEARTBEAT ─── */
+        .heart-beat {
+            animation: heartbeat 3s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            30%        { transform: scale(1.02); }
+            60%        { transform: scale(1); }
+            80%        { transform: scale(1.015); }
+        }
+
+        /* ─── DIAMOND RING ─── */
+        .diamond-ring {
+            display: inline-block;
+            animation: sparkle 3s ease-in-out infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 8px rgba(255,255,255,0.4)); }
+            50%        { filter: brightness(1.4) drop-shadow(0 0 22px rgba(212,164,76,0.9)); }
+        }
+
+        /* ─── PETALS ─── */
+        .petal {
+            position: fixed;
+            width: 14px; height: 14px;
+            background: radial-gradient(circle, rgba(248,104,138,0.7) 0%, rgba(200,16,46,0.35) 100%);
+            border-radius: 50% 0 50% 50%;
+            animation: fall linear infinite;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        @keyframes fall {
+            0%   { transform: translateY(-10vh) rotate(0deg);   opacity: 0; }
+            8%   { opacity: 0.55; }
+            92%  { opacity: 0.55; }
+            100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+        }
+
+        /* ─── FOOTER ─── */
+        .footer-section {
+            position: relative;
+            z-index: 10;
+            padding: 5rem 2rem 4rem;
+            text-align: center;
+            background: radial-gradient(ellipse 60% 60% at 50% 100%, rgba(200,16,46,0.09), transparent 70%);
+        }
+
+        /* ─── SECTION LABEL ─── */
+        .section-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.75;
+            margin-bottom: 1.2rem;
+            display: block;
+        }
+
+        /* ─── COUPLE EMOJI ─── */
+        .couple-emoji {
+            font-size: 5rem;
+            display: block;
+            text-align: center;
+            filter: drop-shadow(0 0 22px rgba(248,104,138,0.5));
+        }
+
+        /* Grid util */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.75rem; }
+        .max-w-card { max-width: 820px; width: 100%; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .mt-2  { margin-top: 0.5rem; }
+        .mt-4  { margin-top: 1rem; }
+        .mt-6  { margin-top: 1.5rem; }
+        .mt-8  { margin-top: 2rem; }
+        .mt-10 { margin-top: 2.5rem; }
+        .mt-12 { margin-top: 3rem; }
+        .mb-4  { margin-bottom: 1rem; }
+        .mb-6  { margin-bottom: 1.5rem; }
+        .mb-8  { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .lang-toggle { top: 14px; right: 14px; gap: 5px; }
+            .lang-btn { padding: 5px 12px; font-size: 0.82rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Language Toggle -->
+<div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLanguage('en', this)">English</button>
+    <button class="lang-btn"        onclick="setLanguage('fr', this)">Français</button>
+    <button class="lang-btn"        onclick="setLanguage('ar', this)">العربية</button>
+</div>
+
+<!-- Petals Container -->
+<div id="petals-container" style="position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden;"></div>
+
+<!-- 3D Canvas -->
+<div id="canvas-container"></div>
+
+<!-- ════════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<section class="hero-section">
+    <div class="hero-content">
+        <span class="section-label" data-en="My Heart & Soul" data-fr="Mon Cœur et Âme" data-ar="قلبي وروحي">My Heart & Soul</span>
+
+        <h1 class="font-display t-hero glow-rose gradient-rose"
+            data-en="Imane Fikri" data-fr="Imane Fikri" data-ar="إيمان فكري"
+            style="display:block;">
+            Imane Fikri
+        </h1>
+
+        <div class="divider-line"></div>
+
+        <div class="subtitle-row">
+            <span class="subtitle-dot"></span>
+            <span class="font-serif t-sub text-gold" style="font-style:italic;"
+                  data-en="Forever in my heart" data-fr="Pour toujours dans mon cœur" data-ar="إلى الأبد في قلبي">
+                Forever in my heart
+            </span>
+            <span class="subtitle-dot"></span>
+        </div>
+
+        <div>
+            <span class="nickname-tag" data-en="Samrars Ino" data-fr="Samrars Ino" data-ar="سمرارس إينو">
+                Samrars Ino
+            </span>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════
+     HORIZONTAL SCROLL
+════════════════════════════════════ -->
+<section class="horizontal-section" id="horizontalSection">
+    <div class="horizontal-container" id="horizontalContainer">
+
+        <!-- Panel 1: About Her -->
+        <div class="horizontal-panel" style="position:relative;">
+            <div class="glass-card heart-beat max-w-card mx-auto">
+                <span class="section-label"
+                      data-en="All About Her" data-fr="Tout sur Elle" data-ar="كل شيء عنها">All About Her</span>
+                <h2 class="font-display t-title gradient-gold mb-6"
+                    data-en="About My Love" data-fr="À Propos de Mon Amour" data-ar="عن حبي">
+                    About My Love
+                </h2>
+                <p class="t-body text-blush"
+                   data-en="Her smiling face and beautiful soul make her absolutely perfect. She has a cheerful and radiant personality that lights up every room she enters."
+                   data-fr="Son visage souriant et sa belle âme la rendent absolument parfaite. Elle a une personnalité joyeuse et rayonnante qui illumine chaque pièce où elle entre."
+                   data-ar="وجهها المبتسم وروحها الجميلة يجعلانها مثالية تماماً. لديها شخصية مرحة ومشرقة تضيء كل مكان تدخله.">
+                    Her smiling face and beautiful soul make her absolutely perfect. She has a cheerful and radiant personality that lights up every room she enters.
+                </p>
+                <div class="grid-2">
+                    <div class="info-cell">
+                        <div style="font-size:2.6rem;">😊</div>
+                        <p class="info-cell-label"
+                           data-en="Beautiful Smile" data-fr="Beau Sourire" data-ar="ابتسامة جميلة">Beautiful Smile</p>
+                    </div>
+                    <div class="info-cell">
+                        <div style="font-size:2.6rem;">💖</div>
+                        <p class="info-cell-label"
+                           data-en="Pure Heart" data-fr="Cœur Pur" data-ar="قلب نقي">Pure Heart</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Her Dreams -->
+        <div class="horizontal-panel" style="position:relative;">
+            <div class="glass-card max-w-card mx-auto">
+                <span class="section-label"
+                      data-en="Looking Forward" data-fr="Regarder vers l'Avenir" data-ar="نظرة للمستقبل">Looking Forward</span>
+                <h2 class="font-display t-title gradient-gold mb-6"
+                    data-en="Her Dreams" data-fr="Ses Rêves" data-ar="أحلامها">
+                    Her Dreams
+                </h2>
+                <p class="t-body text-blush"
+                   data-en="She dreams of becoming a successful businesswoman, and I believe in her completely. Her determination and intelligence will take her far."
+                   data-fr="Elle rêve de devenir une femme d'affaires prospère, et je crois en elle complètement. Sa détermination et son intelligence la mèneront loin."
+                   data-ar="تحلم بأن تصبح سيدة أعمال ناجحة، وأنا أؤمن بها تماماً. عزيمتها وذكاؤها سيأخذانها بعيداً."
+                   ">
+                    She dreams of becoming a successful businesswoman, and I believe in her completely. Her determination and intelligence will take her far.
+                </p>
+                <div class="mt-10 flex-center" style="gap:1rem;flex-wrap:wrap;">
+                    <span style="font-size:3.5rem;filter:drop-shadow(0 0 12px rgba(212,164,76,0.4));">🌟</span>
+                    <span style="font-size:3.5rem;filter:drop-shadow(0 0 12px rgba(212,164,76,0.4));">💼</span>
+                    <span style="font-size:3.5rem;filter:drop-shadow(0 0 12px rgba(248,104,138,0.4));">👑</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Chocolate Love -->
+        <div class="horizontal-panel" style="position:relative;">
+            <div class="glass-card max-w-card mx-auto">
+                <span class="section-label"
+                      data-en="The Sweet Truth" data-fr="La Douce Vérité" data-ar="الحقيقة الحلوة">The Sweet Truth</span>
+                <h2 class="font-display t-title gradient-gold mb-6"
+                    data-en="Sweet Truth" data-fr="Douce Vérité" data-ar="حقيقة حلوة">
+                    Sweet Truth
+                </h2>
+                <div class="chocolate-card">
+                    <div style="font-size:3.5rem;margin-bottom:1rem;">🍫</div>
+                    <p class="font-serif t-sub text-blush"
+                       data-en="Chocolate is her first love... but I'm working on changing that!"
+                       data-fr="Le chocolat est son premier amour... mais je travaille à changer ça !"
+                       data-ar="الشوكولاتة هي حبها الأول... لكنني أعمل على تغيير ذلك!">
+                        Chocolate is her first love... but I'm working on changing that!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 4: Our Story -->
+        <div class="horizontal-panel" style="position:relative;">
+            <div class="glass-card max-w-card mx-auto">
+                <span class="section-label"
+                      data-en="How It Started" data-fr="Comment C'est Commencé" data-ar="كيف بدأ">How It Started</span>
+                <h2 class="font-display t-title gradient-gold mb-8"
+                    data-en="Our Story" data-fr="Notre Histoire" data-ar="قصتنا">
+                    Our Story
+                </h2>
+
+                <div class="timeline-item">
+                    <h3 data-en="First Meeting" data-fr="Première Rencontre" data-ar="اللقاء الأول">First Meeting</h3>
+                    <p class="t-body text-muted"
+                       data-en="At her cousin's wedding in Ougarss (my village). We played cards together at the upper door of the house."
+                       data-fr="Au mariage de sa cousine à Ougarss (mon village). Nous avons joué aux cartes ensemble à la porte supérieure de la maison."
+                       data-ar="في حفل زفاف ابنة عمها في أوغارس (قريتي). لعبنا الورق معاً في الباب العلوي للمنزل.">
+                        At her cousin's wedding in Ougarss (my village). We played cards together at the upper door of the house.
+                    </p>
+                </div>
+                <div class="timeline-item">
+                    <h3 data-en="Special Moment" data-fr="Moment Spécial" data-ar="لحظة خاصة">Special Moment</h3>
+                    <p class="t-body text-muted"
+                       data-en="Meeting on the roof of Sheikh's house — a magical moment I'll never forget."
+                       data-fr="Rendez-vous sur le toit de la maison du Cheikh — un moment magique que je n'oublierai jamais."
+                       data-ar="اللقاء على سطح منزل الشيخ — لحظة سحرية لن أنساها أبداً.">
+                        Meeting on the roof of Sheikh's house — a magical moment I'll never forget.
+                    </p>
+                </div>
+                <div class="timeline-item" style="margin-bottom:0;">
+                    <h3 data-en="Since August 2025" data-fr="Depuis Août 2025" data-ar="منذ غشت 2025">Since August 2025</h3>
+                    <p class="t-body text-muted"
+                       data-en="The beginning of our beautiful journey together."
+                       data-fr="Le début de notre beau voyage ensemble."
+                       data-ar="بداية رحلتنا الجميلة معاً.">
+                        The beginning of our beautiful journey together.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 5: My Promise -->
+        <div class="horizontal-panel" style="position:relative;">
+            <div class="glass-card max-w-card mx-auto">
+                <span class="section-label"
+                      data-en="From My Heart" data-fr="De Mon Cœur" data-ar="من قلبي">From My Heart</span>
+                <h2 class="font-display t-title gradient-gold mb-6"
+                    data-en="My Promise" data-fr="Ma Promesse" data-ar="وعدي">
+                    My Promise
+                </h2>
+                <div class="promise-grid">
+                    <div class="promise-card">
+                        <h3 class="font-display"
+                            data-en="My Promise" data-fr="Ma Promesse" data-ar="وعدي">
+                            My Promise
+                        </h3>
+                        <p class="promise-text"
+                           data-en="I'm so proud of her goals after graduating with her BAC. I support her now and I will support her in every step of her life. Being around her makes me smile, fills me with love and happiness. I can't imagine my life without her."
+                           data-fr="Je suis tellement fier de ses objectifs après avoir obtenu son BAC. Je la soutiens maintenant et je la soutiendrai à chaque étape de sa vie. Être près d'elle me fait sourire, me remplit d'amour et de bonheur. Je ne peux pas imaginer ma vie sans elle."
+                           data-ar="أنا فخور جداً بأهدافها بعد تخرجها بالبكالوريا. أنا أدعمها الآن وسأدعمها في كل خطوة في حياتها. كوني بجانبها يجعلني أبتسم، يملأني بالحب والسعادة. لا أستطيع تخيل حياتي بدونها.">
+                            I'm so proud of her goals after graduating with her BAC. I support her now and I will support her in every step of her life. Being around her makes me smile, fills me with love and happiness. I can't imagine my life without her.
+                        </p>
+                    </div>
+                    <div class="promise-card marriage-promise">
+                        <span class="diamond-ring" style="font-size:3.5rem;display:block;margin-bottom:1rem;">💍</span>
+                        <h3 class="font-display"
+                            data-en="My Biggest Promise" data-fr="Ma Plus Grande Promesse" data-ar="أكبر وعدي">
+                            My Biggest Promise
+                        </h3>
+                        <p class="font-serif t-sub" style="color:var(--gold);font-style:italic;"
+                           data-en="I promise to marry you as soon as possible and make you the happiest woman in the world."
+                           data-fr="Je promets de t'épouser le plus tôt possible et de faire de toi la femme la plus heureuse du monde."
+                           data-ar="أعدك بأن أتزوجك في أقرب وقت ممكن وأن أجعلك أسعد امرأة في العالم.">
+                            I promise to marry you as soon as possible and make you the happiest woman in the world.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- / horizontal-container -->
+</section>
+
+<!-- ════════════════════════════════════
+     QUOTE SECTION
+════════════════════════════════════ -->
+<section class="vertical-section flex-center" style="min-height:60vh;">
+    <div class="max-w-card mx-auto">
+        <div class="quote-box">
+            <span class="quote-mark" aria-hidden="true">"</span>
+            <p class="quote-text"
+               data-en="If your favorite thing is chocolate, my favorite thing is Messi… until you change your mind 🙂"
+               data-fr="Si ta chose préférée est le chocolat, ma chose préférée est Messi… jusqu'à ce que tu changes d'avis 🙂"
+               data-ar="إذا كان شيئك المفضل هو الشوكولاتة، فشيئي المفضل هو ميسي… حتى تغيري رأيك 🙂">
+                If your favorite thing is chocolate, my favorite thing is Messi… until you change your mind 🙂
+            </p>
+            <p class="t-caption text-gold mt-6" style="text-align:center;"
+               data-en="— My heart belongs to you" data-fr="— Mon cœur t'appartient" data-ar="— قلبي يخصك">
+                — My heart belongs to you
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════
+     MEMORIES SECTION
+════════════════════════════════════ -->
+<section class="vertical-section" style="padding-top:3rem;">
+    <div style="max-width:1080px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:4rem;">
+            <span class="section-label"
+                  data-en="Treasured Moments" data-fr="Moments Précieux" data-ar="لحظات ثمينة">Treasured Moments</span>
+            <h2 class="font-display t-title gradient-gold"
+                data-en="Our Favorite Moments" data-fr="Nos Moments Préférés" data-ar="لحظاتنا المفضلة">
+                Our Favorite Moments
+            </h2>
+        </div>
+
+        <div class="grid-3">
+            <div class="memory-card">
+                <span class="memory-card-emoji">🎴</span>
+                <h3 data-en="Playing Cards" data-fr="Jouer aux Cartes" data-ar="لعب الورق">Playing Cards</h3>
+                <p data-en="At the upper door of the house in Ougarss — where our story began"
+                   data-fr="À la porte supérieure de la maison à Ougarss — où notre histoire a commencé"
+                   data-ar="في الباب العلوي للمنزل في أوغارس — حيث بدأت قصتنا">
+                    At the upper door of the house in Ougarss — where our story began
+                </p>
+            </div>
+            <div class="memory-card">
+                <span class="memory-card-emoji">💒</span>
+                <h3 data-en="The Wedding" data-fr="Le Mariage" data-ar="العرس">The Wedding</h3>
+                <p data-en="Her cousin's wedding where fate brought us together"
+                   data-fr="Le mariage de sa cousine où le destin nous a réunis"
+                   data-ar="حفل زفاف ابنة عمها حيث جمعنا القدر معاً">
+                    Her cousin's wedding where fate brought us together
+                </p>
+            </div>
+            <div class="memory-card">
+                <span class="memory-card-emoji">🏠</span>
+                <h3 data-en="The Roof" data-fr="Le Toit" data-ar="السطح">The Roof</h3>
+                <p data-en="Sheikh's house roof — our secret meeting place under the stars"
+                   data-fr="Le toit de la maison du Cheikh — notre lieu de rendez-vous secret sous les étoiles"
+                   data-ar="سطح منزل الشيخ — مكان لقائنا السري تحت النجوم">
+                    Sheikh's house roof — our secret meeting place under the stars
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════
+     ROMANTIC MINI GAME
+════════════════════════════════════ -->
+<section class="vertical-section" style="padding-top:2.5rem;padding-bottom:2.5rem;">
+    <div style="max-width:880px;margin:0 auto;text-align:center;">
+        <span class="section-label">Love Match Game</span>
+        <h2 class="font-display t-title gradient-gold">Catch the Falling Hearts</h2>
+        <p class="t-body text-blush" style="margin-top:0.6rem;">Click as many hearts as you can before the timer ends. Each heart is a promise, and each click is love.</p>
+        <div class="love-game-card mt-6">
+            <button id="startLoveGame" class="btn-rose" style="font-family:'Cormorant Garamond';">Start Love Game</button>
+            <div id="loveGameArea" class="love-game-area"></div>
+            <div id="loveGameStatus" class="love-game-status">Score: 0 / 15 · Time left: 30s</div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════
+     FOOTER
+════════════════════════════════════ -->
+<section class="footer-section">
+    <div style="max-width:720px;margin:0 auto;">
+        <div class="divider-line" style="animation:none;width:clamp(80px,20vw,220px);"></div>
+        <h2 class="font-display glow-rose gradient-rose mt-8"
+            style="font-size:clamp(3rem,8vw,5.5rem);line-height:1.1;"
+            data-en="I Love You Imane" data-fr="Je T'aime Imane" data-ar="أحبك إيمان">
+            I Love You Imane
+        </h2>
+        <p class="font-serif mt-6 text-muted" style="font-style:italic;font-size:1.2rem;"
+           data-en="Forever and Always" data-fr="Pour Toujours et à Jamais" data-ar="للأبد ودائماً">
+            Forever and Always
+        </p>
+        <div class="flex-center gap-4 mt-8" style="font-size:2.4rem;flex-wrap:wrap;">
+            <span style="filter:drop-shadow(0 0 8px rgba(200,16,46,0.6));">❤️</span>
+            <span style="filter:drop-shadow(0 0 8px rgba(248,104,138,0.5));">🌹</span>
+            <span style="filter:drop-shadow(0 0 8px rgba(248,104,138,0.4));">💕</span>
+            <span style="filter:drop-shadow(0 0 8px rgba(180,100,20,0.5));">🍫</span>
+            <span style="filter:drop-shadow(0 0 8px rgba(100,160,80,0.4));">⚽</span>
+            <span style="filter:drop-shadow(0 0 8px rgba(212,164,76,0.6));">💍</span>
+        </div>
+        <div class="divider-line" style="animation:none;width:clamp(80px,20vw,220px);margin-top:3rem;"></div>
+        <p class="t-caption text-muted mt-6" data-en="© 2026 — Made with love for Samrars Ino" data-fr="© 2026 — Fait avec amour pour Samrars Ino" data-ar="© 2026 — صنع بحب لسمرارس إينو">© 2026 — Made with love for Samrars Ino</p>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
+<script>
+// ─── Language switcher ───
+function setLanguage(lang, btn) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('[data-en]').forEach(el => {
+        const txt = el.getAttribute('data-' + lang);
+        if (txt) el.textContent = txt;
+    });
+    document.body.style.direction = (lang === 'ar') ? 'rtl' : 'ltr';
+}
+
+// ─── Petals ───
+(function createPetals() {
+    const container = document.getElementById('petals-container');
+    const COLORS = ['rgba(248,104,138,0.6)','rgba(200,16,46,0.4)','rgba(240,184,196,0.5)'];
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.style.left = (Math.random() * 102) + 'vw';
+        p.style.top  = '-20px';
+        p.style.width = p.style.height = (10 + Math.random() * 12) + 'px';
+        p.style.background = `radial-gradient(circle, ${COLORS[i%3]} 0%, transparent 100%)`;
+        p.style.animationDuration  = (7 + Math.random() * 8)  + 's';
+        p.style.animationDelay     = (Math.random() * 8)       + 's';
+        container.appendChild(p);
+    }
+})();
+
+// ─── Three.js ───
+(function initThree() {
+    const scene    = new THREE.Scene();
+    const camera   = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    function createHeartGeometry() {
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(0, -0.5);
+        heartShape.bezierCurveTo(0, -0.9, -0.5, -0.9, -0.5, -0.35);
+        heartShape.bezierCurveTo(-0.5, 0.25, 0, 0.5, 0, 0.75);
+        heartShape.bezierCurveTo(0, 0.5, 0.5, 0.25, 0.5, -0.35);
+        heartShape.bezierCurveTo(0.5, -0.9, 0, -0.9, 0, -0.5);
+
+        return new THREE.ExtrudeGeometry(heartShape, {
+            depth: 0.25,
+            bevelEnabled: true,
+            bevelThickness: 0.06,
+            bevelSize: 0.05,
+            bevelSegments: 5,
+            steps: 2
+        });
+    }
+
+    const colors = [0xffc0cb, 0xff7f9f, 0xffc7d7];
+    const emits  = [0x8a2050, 0x4c1028, 0x702d4f];
+    const gems   = [];
+
+    for (let i = 0; i < 20; i++) {
+        const mat = new THREE.MeshPhongMaterial({
+            color: colors[i % 3],
+            emissive: emits[i % 3],
+            specular: 0xffffff,
+            shininess: 80,
+            transparent: true,
+            opacity: 0.42,
+            side: THREE.DoubleSide
+        });
+        const geo = createHeartGeometry();
+        const m = new THREE.Mesh(geo, mat);
+        const spreadX = (Math.random() - 0.5) * 32;
+        const spreadY = (Math.random() - 0.5) * 28;
+        const spreadZ = (Math.random() - 0.5) * 20;
+        m.position.set(spreadX, spreadY, spreadZ);
+        m.scale.set(0.6 + Math.random() * 0.5, 0.6 + Math.random() * 0.5, 0.6 + Math.random() * 0.5);
+        m.userData = {
+            sx: (Math.random()-0.5)*0.004,
+            sy: (Math.random()-0.5)*0.004,
+            sz: (Math.random()-0.5)*0.004,
+            oy: m.position.y,
+            ox: m.position.x,
+            oz: m.position.z
+        };
+        scene.add(m); gems.push(m);
+    }
+
+    const pg = new THREE.BufferGeometry();
+    const pa = new Float32Array(1000 * 3);
+    for (let i = 0; i < pa.length; i++) pa[i] = (Math.random()-0.5)*28;
+    pg.setAttribute('position', new THREE.BufferAttribute(pa, 3));
+    const pm = new THREE.Points(pg, new THREE.PointsMaterial({ size: 0.065, color: 0xd4a44c, transparent: true, opacity: 0.5 }));
+    scene.add(pm);
+
+    scene.add(Object.assign(new THREE.AmbientLight(0xffffff, 0.5)));
+    const pl1 = new THREE.PointLight(0xf7688a, 1.2, 100); pl1.position.set(8,8,8);  scene.add(pl1);
+    const pl2 = new THREE.PointLight(0xd4a44c, 0.9, 100); pl2.position.set(-8,-8,8); scene.add(pl2);
+    camera.position.z = 12;
+
+    let mx = 0, my = 0;
+    document.addEventListener('mousemove', e => {
+        mx = (e.clientX / innerWidth) * 2 - 1;
+        my = -(e.clientY / innerHeight) * 2 + 1;
+    });
+
+    (function animate() {
+        requestAnimationFrame(animate);
+        const t = Date.now() * 0.001;
+        gems.forEach((g, i) => {
+            g.rotation.x += g.userData.sx;
+            g.rotation.y += g.userData.sy;
+            g.position.y  = g.userData.oy + Math.sin(t + i) * 0.6;
+            g.position.x  = g.userData.ox + Math.cos(t * 0.5 + i) * 0.4;
+            g.position.z  = g.userData.oz + Math.sin(t * 0.3 + i * 2) * 0.3;
+        });
+        pm.rotation.y += 0.0004;
+        pm.rotation.x  = my * 0.08;
+        renderer.render(scene, camera);
+    })();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+    });
+})();
+
+// ─── GSAP ───
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.to('.hero-content', {
+    scrollTrigger: { trigger: '.hero-section', start: 'top top', end: 'bottom top', scrub: true },
+    y: 80, opacity: 0
+});
+
+gsap.to('#horizontalContainer', {
+    x: () => -(document.getElementById('horizontalContainer').scrollWidth - innerWidth),
+    ease: 'none',
+    scrollTrigger: {
+        trigger: '#horizontalSection',
+        start: 'top top',
+        end: () => '+=' + (document.getElementById('horizontalContainer').scrollWidth - innerWidth),
+        pin: true, scrub: 1, invalidateOnRefresh: true
+    }
+});
+
+gsap.utils.toArray('.memory-card').forEach((card, i) => {
+    gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 88%', toggleActions: 'play none none reverse' },
+        y: 40, opacity: 0, duration: 0.9, delay: i * 0.15, ease: 'power3.out'
+    });
+});
+
+// ─── Romantic Love Game Script ───
+(function loveGame(){
+    const area = document.getElementById('loveGameArea');
+    const status = document.getElementById('loveGameStatus');
+    const button = document.getElementById('startLoveGame');
+    let score = 0;
+    let timeLeft = 30;
+    let hearts = [];
+    let timerId;
+
+    function updateStatus() {
+        status.textContent = `Score: ${score} / 15 · Time left: ${timeLeft}s`;
+    }
+    function clearHearts() {
+        hearts.forEach(h => h.remove());
+        hearts = [];
+    }
+    function endGame(msg) {
+        clearInterval(timerId);
+        clearHearts();
+        button.disabled = false;
+        button.textContent = 'Play Again';
+        status.textContent = `${msg} Final score: ${score} / 15`;
+    }
+    function spawnHeart() {
+        const heart = document.createElement('span');
+        heart.className = 'love-heart';
+        heart.textContent = '💖';
+        const x = Math.random() * (area.clientWidth - 30);
+        const y = Math.random() * (area.clientHeight - 30);
+        heart.style.left = `${x}px`;
+        heart.style.top = `${y}px`;
+
+        heart.addEventListener('click', () => {
+            score += 1;
+            heart.remove();
+            hearts = hearts.filter(h => h !== heart);
+            updateStatus();
+            if (score >= 15) endGame('You won the love match!');
+        });
+
+        hearts.push(heart);
+        area.appendChild(heart);
+    }
+    function runRound() {
+        clearHearts();
+        score = 0; timeLeft = 30;
+        button.disabled = true;
+        button.textContent = 'Playing...';
+        updateStatus();
+
+        for (let i = 0; i < 20; i++) {
+            setTimeout(spawnHeart, i * 500);
+        }
+
+        timerId = setInterval(() => {
+            timeLeft -= 1;
+            updateStatus();
+            if (timeLeft <= 0) {
+                endGame('Time is up!');
+            }
+        }, 1000);
+    }
+
+    button.addEventListener('click', runRound);
+    updateStatus();
+})();
+</script>
+</body>
+</html>
